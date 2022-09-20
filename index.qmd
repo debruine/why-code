@@ -1,0 +1,614 @@
+---
+title: "Why Code?"
+subtitle: "[https://debruine.github.io/why-code](https://debruine.github.io/why-code)"
+author: "Lisa DeBruine"
+format: 
+  revealjs:
+    logo: images/psyteachr_hex.png
+    theme: [dark, style.scss]
+    transition: none
+    transition-speed: fast
+---
+
+## Abstract
+
+```{r, include = FALSE}
+library(tidyverse)
+library(ggdark)
+library(gt)
+theme_set(dark_theme_gray(base_size = 17))
+
+# set up data for plotting
+pop_data <- read_csv("data/pop_data.csv") %>%
+  mutate(age = factor(age, unique(age)))
+
+pop_data_2020 <- filter(pop_data, year == 2020)
+
+pop_data$pcnt2 <- ifelse(pop_data$sex == "Male", 
+                         -pop_data$pcnt, 
+                         pop_data$pcnt)
+
+w = 6; h = 8
+```
+
+Research transparency and integrity benefit greatly from computationally reproducible code, but the barriers to learning the required skills can seem overwhelming. In this talk, I will summarise the benefits of using code to process and analyse data, give some practical tips for developing your skills, demonstrate how data simulation can improve your research, and discuss the benefits of code review. 
+
+# Why Use Code?
+
+## Plots!
+
+:::{layout-ncol=2}
+
+![](images/pets.png)
+
+![](images/sexual_orientation.png)
+:::
+
+## UN Population Data
+
+```{r}
+readxl::read_excel("data/PopulationAgeSex-20220430074449.xlsx",
+                   sheet = "Data", skip = 1) |>
+  filter(Age == "0-4") |>
+  select(Location, Sex, Age, `1950`:`2100`) |>
+  head(6) |> 
+  gt() |>
+  gt::cols_width(Location ~pct(20), 
+                 Sex ~ pct(15),
+                 Age ~ pct(10)) |>
+  gtExtras:: gt_theme_dark()
+```
+
+
+## UN Population Data: 2020
+
+:::: {.columns}
+::: {.column width="33%"}
+
+```{r}
+head(pop_data_2020, 14) |>
+  gt() |>
+  fmt_percent(pcnt) |>
+  gtExtras:: gt_theme_dark()
+```
+:::
+::: {.column width="33%"}
+```{r}
+slice(pop_data_2020, 15:28) |>
+  gt() |>
+  fmt_percent(pcnt) |>
+  gtExtras:: gt_theme_dark()
+```
+:::
+::: {.column width="33%"}
+```{r}
+slice(pop_data_2020, 29:42) |>
+  gt() |>
+  fmt_percent(pcnt) |>
+  gtExtras:: gt_theme_dark()
+```
+:::
+::::
+
+## Set up plot {auto-animate=true}
+
+::: {.notes}
+Don't worry about the squished x-axis label; we'll fix that later.
+:::
+
+:::: {.columns}
+::: {.column width="60%" class="plotcode"}
+
+```{r, echo = TRUE, eval = FALSE}
+ggplot(data = pop_data_2020, 
+       mapping = aes(x = age, y = pcnt, fill = sex))
+```
+
+```{r}
+# ggsave("images/plot2.png", width = w, height = h)
+```
+
+:::
+::: {.column width="40%"}
+![](images/plot2.png)
+:::
+::::
+
+
+## Add visualistion {auto-animate=true}
+
+:::: {.columns}
+::: {.column width="60%" class="plotcode"}
+
+```{r, echo = TRUE, eval = FALSE}
+ggplot(pop_data_2020, aes(age, pcnt, fill = sex)) +
+  geom_col()
+```
+
+```{r}
+# ggsave("images/plot3.png", width = w, height = h)
+```
+
+:::
+::: {.column width="40%"}
+![](images/plot3.png)
+:::
+::::
+
+## Flip the x and y axes {auto-animate=true}
+
+:::: {.columns}
+::: {.column width="60%" class="plotcode"}
+
+```{r, echo = TRUE, eval = FALSE}
+ggplot(pop_data_2020, aes(age, pcnt, fill = sex)) +
+  geom_col() +
+  coord_flip()
+```
+
+```{r}
+# ggsave("images/plot4.png", width = w, height = h)
+```
+
+:::
+::: {.column width="40%"}
+![](images/plot4.png)
+:::
+::::
+
+## Center the columns {auto-animate=true}
+
+:::: {.columns}
+::: {.column width="60%" class="plotcode"}
+
+```{r, echo = TRUE, eval = FALSE}
+pop_data_2020 <- pop_data_2020 |>
+  mutate(pcnt2 = ifelse(sex == "Male", -pcnt, pcnt))
+
+ggplot(pop_data_2020, aes(age, pcnt2, fill = sex)) +
+  geom_col() +
+  coord_flip()
+```
+
+```{r}
+# ggsave("images/plot5.png", width = w, height = h)
+```
+:::
+::: {.column width="40%"}
+![](images/plot5.png)
+:::
+::::
+
+## Fix the titles {auto-animate=true}
+
+:::: {.columns}
+::: {.column width="60%" class="plotcode"}
+
+```{r, echo = TRUE, eval = FALSE}
+ggplot(pop_data_2020, aes(age, pcnt2, fill = sex)) +
+  geom_col() +
+  coord_flip() +
+  labs(title = "Population by Age and Gender: 2020",
+       x = "Age", y = "Percent of Population")
+```
+
+```{r}
+# ggsave("images/plot6.png", width = w, height = h)
+```
+
+:::
+::: {.column width="40%"}
+![](images/plot6.png)
+:::
+::::
+
+## Remove legend {auto-animate=true}
+
+:::: {.columns}
+::: {.column width="60%" class="plotcode"}
+
+```{r, echo = TRUE, eval = FALSE}
+ggplot(pop_data_2020, aes(age, pcnt2, fill = sex)) +
+  geom_col(show.legend = FALSE) +
+  coord_flip() +
+  labs(title = "Population by Age and Gender: 2020",
+       x = "Age", y = "Percent of Population")
+```
+
+```{r}
+# ggsave("images/plot6b.png", width = w, height = h)
+```
+
+:::
+::: {.column width="40%"}
+![](images/plot6b.png)
+:::
+::::
+
+## Customise colours {auto-animate=true}
+
+:::: {.columns}
+::: {.column width="60%" class="plotcode"}
+
+```{r, echo = TRUE, eval = FALSE}
+ggplot(pop_data_2020, aes(age, pcnt2, fill = sex)) +
+  geom_col(show.legend = FALSE) +
+  coord_flip() +
+  labs(title = "Population by Age and Gender: 2020",
+       x = "Age", y = "Percent of Population") +
+  scale_fill_manual(
+    values = c("hotpink3", "dodgerblue3"))
+```
+
+```{r}
+# ggsave("images/plot6c.png", width = w, height = h)
+```
+
+:::
+::: {.column width="40%"}
+![](images/plot6c.png)
+:::
+::::
+
+## Customise the axes {auto-animate=true}
+
+:::: {.columns}
+::: {.column width="60%" class="plotcode"}
+
+```{r, echo = TRUE, eval = FALSE}
+ggplot(pop_data_2020, aes(age, pcnt2, fill = sex)) +
+  geom_col(show.legend = FALSE) +
+  coord_flip() +
+  labs(title = "Population by Age and Gender: 2020",
+       x = "Age", y = "Percent of Population") +
+  scale_fill_manual(
+    values = c("hotpink3", "dodgerblue3")) +
+  scale_y_continuous(
+    breaks = seq(-.04, .04, .01),
+    labels = abs(seq(-4, 4, 1)) |> paste0("%"))
+```
+
+```{r}
+# ggsave("images/plot7.png", width = w, height = h)
+```
+
+:::
+::: {.column width="40%"}
+![](images/plot7.png)
+:::
+::::
+
+## Add annotations {auto-animate=true}
+
+:::: {.columns}
+::: {.column width="60%" class="plotcode"}
+
+```{r, echo = TRUE, eval = FALSE}
+ggplot(pop_data_2020, aes(age, pcnt2, fill = sex)) +
+  geom_col(show.legend = FALSE) +
+  coord_flip() +
+  labs(title = "Population by Age and Gender: 2020",
+       x = "Age", y = "Percent of Population") +
+  scale_fill_manual(
+    values = c("hotpink3", "dodgerblue3")) +
+  scale_y_continuous(
+    breaks = seq(-.04, .04, .01),
+    labels = abs(seq(-4, 4, 1)) |> paste0("%")) +
+  annotate("text", label = "Female", size = 8, 
+    color = "hotpink3", x = 20, y = .025) +
+  annotate("text", label = "Male", size = 8, 
+    color = "dodgerblue3", x = 20, y = -.025)
+```
+
+```{r}
+# ggsave("images/plot8.png", width = w, height = h)
+```
+
+:::
+::: {.column width="40%"}
+![](images/plot8.png)
+:::
+::::
+
+## Animate {auto-animate=true}
+
+:::: {.columns}
+::: {.column width="60%" class="plotcode"}
+
+```{r, echo = TRUE, eval = FALSE}
+ggplot(pop_data, aes(age, pcnt2, fill = sex)) +
+  geom_col(show.legend = FALSE) +
+  coord_flip(ylim = c(-.08, .08)) +
+  labs(title = "Population by Age and Gender: 
+                {floor(frame_time/5)*5}",
+       x = "Age", y = "Percent of Population") +
+  scale_fill_manual(
+    values = c("hotpink3", "dodgerblue3")) +
+  scale_y_continuous(
+    breaks = seq(-.08, .08, .02),
+    labels = abs(seq(-8, 8, 2)) |> paste0("%")) +
+  annotate("text", label = "Female", size = 8, 
+    color = "hotpink3", x = 20, y = .05) +
+  annotate("text", label = "Male", size = 8, 
+    color = "dodgerblue3", x = 20, y = -.05) +
+  gganimate::transition_time(year)
+```
+
+
+```{r, eval = FALSE}
+# set code above to save to anim 
+frames <- unique(pop_data$year) %>% length()
+
+gganimate::anim_save("images/anim.gif", 
+          animation = anim, 
+          nframes = frames*5, fps = 10, 
+          width = w, height = h, 
+          units = "in", res = 150)
+```
+
+:::
+::: {.column width="40%"}
+![](images/anim.gif)
+:::
+::::
+
+## Reusability
+
+![](images/anim2.gif)
+
+## Computational Reproducibility
+
+* Of 35 articles published in *Cognition* with usable data (but no code, [Hardwicke et al. (2018)](https://doi.org/10.1098/rsos.180448) found:
+    - only 11 could be reproduced independently 
+    - 11 were reproducible with the original authors' help
+    - 13 were not reproducible even by the original authors
+
+* Of 62 psych Registered Reports published from 2014--2018, 37 had analysis scripts, 31 could be run, and 21 reproduced all the main results ([Obels et al, 2020](https://doi.org/10.1177/251524592091887))
+
+## Error Detection
+
+<div style="float:right;width:35%;margin-left: 1em;">
+![](images/statcheck.png)
+</div>
+
+An analysis by [Nuijten et al. (2016)](https://doi.org/10.3758/s13428-015-0664-2) of over 250K p-values reported in 8 major psych journals from 1985 to 2013 found that:
+
+* half the papers had at least one inconsistent p-value 
+* 1/8 of papers had errors that could affect conclusions
+* errors more likely to be erroneously significant than not
+
+
+# Developing Skills
+
+## Top Tips
+
+:::: {.columns}
+
+::: {.column width="65%"}
+
+- Take a workshop in your area
+- Practice regularly and meaningfully
+- Embed R in your daily practice
+- Do something fun!
+    - [30-Day Chart Challenge](https://30daychartchallenge.org/)
+    - [Tidy Tuesday](https://www.tidytuesday.com/)
+    - [Table Contest](https://www.rstudio.com/blog/rstudio-table-contest-2022/) (due 2022-11-18)
+
+:::
+
+::: {.column width="35%"}
+
+![](images/30-day-chart-challenge.jpg)
+
+[![](images/tour-de-france.png)](https://bjnnowak.netlify.app/2021/10/04/r-beautiful-tables-with-gt-and-gtextras/)
+
+:::
+::::
+
+::: {.notes}
+Benjamin Nowak's outstanding gt tutorial
+:::
+
+## PsyTeachR
+
+:::{layout-ncol=4 style="font-size: 30px;"}
+
+![Data Visualisation Using R, for Researchers Who Don't Use R](images/introdataviz.png)
+
+![Applied Data Skills](images/ads.png)
+
+![Data Skills for Reproducible Research](images/reprores.png)
+
+![Learning Statistical Models Through Simulation in R](images/stat-models.png)
+:::
+
+[![](images/psyTeachR_logo.png)](https://psyteachr.github.io)
+
+## Online Communities
+
+:::{layout-ncol=4}
+
+[![#RStats twitter](images/twitter-logo.svg)](https://twitter.com/hashtag/Rstats)
+
+[![R-Ladies](images/R-LadiesGlobal.png)](https://rladies.org/)
+
+[![R for Data Science](images/r4ds.png)](https://www.rfordatasci.com/)
+
+[![Starts October 5](images/coding-club.png)](https://psyteachr.github.io/mms/coding_club.html)
+
+:::
+
+
+## #RStats Twitter
+
+Some of the awesome R people you can follow on Twitter.
+
+:::{#figtwitter layout-nrow=2}
+[![@hadleywickham](images/hadleywickham.jpg)](https://twitter.com/hadleywickham)
+
+[![@JennyBryan](images/JennyBryan.jpg)](https://twitter.com/JennyBryan)
+
+[![@dataandme](images/dataandme.jpg)](https://twitter.com/dataandme)
+
+[![@thomas_mock](images/thomas_mock.jpg)](https://twitter.com/thomas_mock)
+
+[![@b0rk](images/b0rk.jpg)](https://twitter.com/b0rk)
+
+[![@Cghlewis](images/Cghlewis.jpg)](https://twitter.com/Cghlewis)
+
+[![@bmwiernik](images/bmwiernik.jpg)](https://twitter.com/bmwiernik)
+
+[![@djnavarro](images/djnavarro.jpg)](https://twitter.com/djnavarro)
+
+[![@ChelseaParlett](images/ChelseaParlett.jpg)](https://twitter.com/ChelseaParlett)
+
+[![@rafamoral](images/rafamoral.jpg)](https://twitter.com/rafamoral)
+:::
+
+## Art and Memes
+
+:::{layout-ncol=2}
+
+[![art.djnavarro.net](images/djnavarro_art.png)](https://art.djnavarro.net/)
+
+![](images/help-no-photos.png)
+
+<!--![](images/repro_reports.jpg)-->
+
+:::
+
+## #RStats TikTok
+
+<table><tr><td>
+### It's R! 🌽
+<video width="288" height="512" controls>
+  <source src="videos/corn.MP4" type="video/mp4">
+</video> 
+</td><td>
+### Dirtbag 👶
+<video width="288" height="512" controls>
+  <source src="videos/dirtbag.MP4" type="video/mp4">
+</video> 
+</td><td>
+### Data 😱
+<video width="288" height="512" controls>
+  <source src="videos/data.MP4" type="video/mp4">
+</video> 
+</td></tr></table>
+
+# Data Simulation
+
+## Uses for Data Simulation
+
+Being able to simulate data allows you to:
+
+- prep analysis scripts for pre-registration
+- calculate power and sensitivity for analyses that don't have empirical methods
+- create reproducible examples when your data are too big or confidential to share
+- enhance your understanding of statistical concepts
+- create demo data for teaching and tutorials
+
+
+## Faux
+
+::: {#fauxapp .panel-tabset}
+
+### Plot
+
+[![rstudio-connect.psy.gla.ac.uk/faux/](images/faux_plot.png)](http://rstudio-connect.psy.gla.ac.uk/faux/)
+
+### Data
+
+[![rstudio-connect.psy.gla.ac.uk/faux/](images/faux_data.png)](http://rstudio-connect.psy.gla.ac.uk/faux/)
+
+### Code
+
+[![rstudio-connect.psy.gla.ac.uk/faux/](images/faux_code.png)](http://rstudio-connect.psy.gla.ac.uk/faux/)
+
+:::
+
+## Further Resources
+
+- [PsyPag Simulation Summer School](https://simsummerschool.github.io/)
+
+# Code Review
+
+## Goals of Code Review
+
+The specific goals of any code review will depend on the stage in the research process at which it is being done, the expertise of the coder and reviewer, and the amount of time available. 
+
+:::: {.columns}
+
+::: {.column width="65%"}
+
+### Goals
+
+- Does it run?
+- Is it reproducible?
+- Is it auditable and understandable?
+- Does it follow best practices?
+- Is it correct and appropriate?
+
+:::
+
+::: {.column width="35%"}
+
+### Not Goals
+
+- Debugging
+- Code help
+- Statistical help
+
+:::
+::::
+
+::: {.notes}
+Does it run?
+Checking whether the code runs is the simplest goal, but one of the most important and it would be a substantial improvement if all research code had this single check. It requires only the expertise to run a script in the relevant language. The reviewer does not necessarily need to be able to diagnose or help with any problems, just identify them to the coder. 
+
+Is it reproducible?
+Computational reproducibility means that anyone running the code gets the same results. The reviewer can check for consistency with outputs that are created by the code, such as an HTML or PDF rendered version of the script, or with values and figures in a manuscript.
+:::
+
+## Key Concepts
+
+- Project organisation
+- File paths
+- Naming things
+- Data documentation
+- Literate coding
+- Single point of truth (SPOT)
+- Don't repeat yourself (DRY)
+
+## Coder Checklist
+
+### A review package should include:
+
+<style>
+.checklist li {
+  list-style: none;
+}
+
+.checklist li::before {
+  content: '';
+  display: inline-block;
+  margin: 0 0 -.25em -1.3em;
+  height: 1.2em;
+  width: 1.2em;
+  background-image: url(images/checkbox.svg);
+}
+</style>
+
+:::{.checklist}
+- Any outputs that the reviewers should try to reproduce
+- All data used to create the outputs to be reproduced
+- All code necessary to recreate the outputs
+- A main script that runs any subscripts in the relevant order
+- A README file that describes the project; specifies credit and licensing 
+:::
+
+## Reviewer Checklist 
+
+# Thank You!
+
+[https://github.com/debruine/why-code](https://github.com/debruine/why-code)

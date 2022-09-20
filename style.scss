@@ -1,0 +1,60 @@
+/*-- scss:defaults --*/
+
+$body-bg: #222;
+
+/*-- scss:rules --*/
+
+:root {
+  --red: #C1301C;
+  --orange: #C96112;
+  --yellow: #C4A705;
+  --green: #177245;
+  --blue: #2E5793;
+  --purple: #4B2882;
+}
+
+/* rainbow borders */
+.slide-background-content {
+  margin-top: 24px;
+  box-shadow: 0 -4px 0 0px var(--purple),
+              0 -8px 0 0px var(--blue),
+              0 -12px 0 0px var(--green),
+              0 -16px 0 0px var(--yellow),
+              0 -20px 0 0px var(--orange),
+              0 -24px 0 0px var(--red);
+}
+
+.checklist li {
+  list-style: none;
+}
+
+.checklist li::before {
+  content: '';
+  display: inline-block;
+  margin: 0 0 -.25em -1.3em;
+  height: 1.2em;
+  width: 1.2em;
+  background-image: url(images/checkbox.svg);
+}
+
+.plotcode {
+  font-size: .8em;
+}
+
+#figtwitter img {
+  border-radius: 50%;
+}
+
+#figtwitter .quarto-figure {
+  margin: 0;
+}
+
+#figtwitter figcaption {
+  position: relative;
+  top: -1em;
+  text-align: center;
+}
+
+#fauxapp li {
+  font-size: 50%;
+}
