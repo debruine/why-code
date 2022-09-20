@@ -529,7 +529,13 @@ Being able to simulate data allows you to:
 
 ## Further Resources
 
-- [PsyPag Simulation Summer School](https://simsummerschool.github.io/)
+:::{layout-nrow=1}
+
+[![PsyPag Simulation Summer School](images/simsummerschool.jpg)](https://simsummerschool.github.io/)
+
+[![Data Simulation Workshops](images/dsw.png)](https://debruine.github.io/data-sim-workshops/)
+
+:::
 
 # Code Review
 
@@ -608,6 +614,15 @@ Computational reproducibility means that anyone running the code gets the same r
 :::
 
 ## Reviewer Checklist 
+
+:::{.checklist}
+- Is there sufficient information to get started?
+- Does it run? Do you need to edit anything?
+- Is it reproducible? Did you get the same values for all outputs? 
+- Is it auditable and understandable? Is it set up so you can easily find code for outputs?
+- Does it follow best practices? E.g., literate coding, SPOT, DRY
+- Is it correct and appropriate? (if you have relevant expertise)
+:::
 
 # Thank You!
 
