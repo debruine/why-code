@@ -16,6 +16,9 @@ format:
 library(tidyverse)
 library(ggdark)
 library(gt)
+library(faux)
+faux::faux_options(plot = FALSE)
+
 theme_set(dark_theme_gray(base_size = 17))
 
 # set up data for plotting
@@ -515,17 +518,124 @@ Being able to simulate data allows you to:
 
 ### Plot
 
-[![rstudio-connect.psy.gla.ac.uk/faux/](images/faux_plot.png)](http://rstudio-connect.psy.gla.ac.uk/faux/)
+[![rstudio-connect.psy.gla.ac.uk/faux/](images/faux_plot.png)](https://shiny.psy.gla.ac.uk/debruine/fauxapp/)
 
 ### Data
 
-[![rstudio-connect.psy.gla.ac.uk/faux/](images/faux_data.png)](http://rstudio-connect.psy.gla.ac.uk/faux/)
+[![rstudio-connect.psy.gla.ac.uk/faux/](images/faux_data.png)](https://shiny.psy.gla.ac.uk/debruine/fauxapp/)
 
 ### Code
 
-[![rstudio-connect.psy.gla.ac.uk/faux/](images/faux_code.png)](http://rstudio-connect.psy.gla.ac.uk/faux/)
+[![rstudio-connect.psy.gla.ac.uk/faux/](images/faux_code.png)](https://shiny.psy.gla.ac.uk/debruine/fauxapp/)
 
 :::
+
+## Faux Code
+
+```{r, echo = TRUE}
+sim_data <- faux::sim_design(
+  within = list(version = c(V1 = "Version 1", V2 = "Version 2"), 
+                condition = c(ctl = "Control", exp = "Experimental")),
+  between = list(age_group = c(young = "Age 20-29", old = "Age 70-79")),
+  n = 30,
+  mu = c(100, 100, 100, 100, 100, 90, 110, 110),
+  sd = 20,
+  r = 0.5,
+  dv = c(score = "Score"),
+  id = c(id = "Subject ID"),
+  vardesc = list(version = "Task Version", 
+                 condition = "Experiment Condition", 
+                 age_group = "Age Group"),
+  long = TRUE
+)
+```
+
+## Faux Design Parameters
+
+```{r}
+# sim_data[c(1, 31, 61, 91, 121, 151, 181, 211), ] |>
+get_design(sim_data)$params |>
+  gt() |>
+  gt::tab_options(table.font.size = 25,
+                  column_labels.font.size = 25) |>
+  gtExtras:: gt_theme_dark()
+```
+
+
+## Faux Design Plot
+
+```{r}
+sim_data |> get_design() |> plot() + 
+  dark_theme_gray(base_size = 17)
+```
+
+## Faux Data Plot
+
+```{r}
+sim_data |> plot(geoms = c("violin", "pointrangeSE")) + 
+  dark_theme_gray(base_size = 17)
+```
+
+## Power Simulation: Replicate Data
+
+```{r, echo = TRUE}
+sim_data <- faux::sim_design(
+  within = list(version = c(V1 = "Version 1", V2 = "Version 2"), 
+                condition = c(ctl = "Control", exp = "Experimental")),
+  between = list(age_group = c(young = "Age 20-29", old = "Age 70-79")),
+  n = 30,
+  mu = c(100, 100, 100, 100, 100, 90, 110, 110),
+  sd = 20,
+  r = 0.5,
+  dv = c(score = "Score"),
+  id = c(id = "Subject ID"),
+  vardesc = list(version = "Task Version", 
+                 condition = "Experiment Condition", 
+                 age_group = "Age Group"),
+  long = TRUE,
+  rep = 100
+)
+```
+
+## Power Simulation: Analysis Function
+
+```{r, echo = TRUE}
+afex::set_sum_contrasts() # avoids annoying afex message
+afex::afex_options(include_aov = FALSE) # runs faster
+
+analysis <- function(data) {
+  a <- afex::aov_ez(
+    id = "id", 
+    dv = "score", 
+    between = "age_group",
+    within = c("version", "condition"),
+    data = data)
+  
+  as_tibble(a$anova_table, rownames = "term")
+}
+```
+
+## Power Simulation
+
+```{r, echo = TRUE}
+power <- sim_data |>
+  mutate(analysis = purrr::map(data, analysis)) |>
+  select(-data) |>
+  unnest(analysis) |>
+  group_by(term) |>
+  summarise(power = mean(`Pr(>F)` < .05))
+```
+
+
+```{r}
+power |>
+  gt() |>
+  gt::tab_options(table.font.size = 25,
+                column_labels.font.size = 25) |>
+  gtExtras:: gt_theme_dark()
+```
+
+
 
 ## Further Resources
 
