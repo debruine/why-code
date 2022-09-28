@@ -499,6 +499,15 @@ Some of the awesome R people you can follow on Twitter.
 </video> 
 </td></tr></table>
 
+## Shiny Apps
+
+```{r}
+knitr::include_app("https://shiny.psy.gla.ac.uk/debruine/seen/", height = "550px")
+```
+
+[Seen and to See](https://shiny.psy.gla.ac.uk/debruine/seen/)
+
+
 # Data Simulation
 
 ## Uses for Data Simulation
@@ -600,8 +609,9 @@ sim_data <- faux::sim_design(
 ## Power Simulation: Analysis Function
 
 ```{r, echo = TRUE}
-afex::set_sum_contrasts() # avoids annoying afex message
-afex::afex_options(include_aov = FALSE) # runs faster
+# setup options to avoid annoying afex message & run faster
+afex::set_sum_contrasts()
+afex::afex_options(include_aov = FALSE) 
 
 analysis <- function(data) {
   a <- afex::aov_ez(
@@ -611,8 +621,19 @@ analysis <- function(data) {
     within = c("version", "condition"),
     data = data)
   
-  as_tibble(a$anova_table, rownames = "term")
+  as_tibble(a$anova_table, rownames = "term") |>
+    rename(p = `Pr(>F)`)
 }
+```
+
+
+```{r}
+analysis(sim_data$data[[1]]) |>
+  gt() |>
+  gt::fmt_number(MSE, decimals = 1) |>
+  gt::fmt_number(F, decimals = 2) |>
+  gt::fmt_number(ges:p, decimals = 3) |>
+  gtExtras:: gt_theme_dark()
 ```
 
 ## Power Simulation
@@ -623,7 +644,7 @@ power <- sim_data |>
   select(-data) |>
   unnest(analysis) |>
   group_by(term) |>
-  summarise(power = mean(`Pr(>F)` < .05))
+  summarise(power = mean(p < .05))
 ```
 
 
@@ -684,6 +705,15 @@ Checking whether the code runs is the simplest goal, but one of the most importa
 
 Is it reproducible?
 Computational reproducibility means that anyone running the code gets the same results. The reviewer can check for consistency with outputs that are created by the code, such as an HTML or PDF rendered version of the script, or with values and figures in a manuscript.
+
+Is it auditable?
+Even if a reviewer doesn't have the expertise to assess the statistics or data processing, they can assess whether the code is well-organized enough to figure out what is intended so mistakes *could* be detected. Is the code annotated with notes describing the process and rationale so that it is possible to determine if the code is accomplishing what was intended? Are all the important parts of the process available, or are some steps missing, such as code to generate analyzed data from raw data?
+
+Does it follow best practices?
+Recommendations about ‘best practices’ can be idiosyncratic, but here we mean general coding principles that serve to reduce the scope for errors and make understanding code easier. This goal can take a bit longer and requires more general coding expertise from the reviewer. It also may be more appropriate in earlier stages of the project. However, advice on best practices can still help coders with future projects, even when there isn't scope to make big structural changes to the current project.
+
+Is it correct and appropriate?
+Is the code actually doing what was intended, and is what was intended correct? A careful answer to this question requires the reviewer to have domain-specific expertise and statistical expertise. Some logical problems can be caught without domain knowledge, such as intending to filter out male subjects, but actually filtering them IN. However, other problems will require specialist domain or statistical knowledge to detect. 
 :::
 
 ## Key Concepts
@@ -736,4 +766,4 @@ Computational reproducibility means that anyone running the code gets the same r
 
 # Thank You!
 
-[https://github.com/debruine/why-code](https://github.com/debruine/why-code)
+[https://debruine.github.io/why-code](https://debruine.github.io/why-code) ([code](https://github.com/debruine/why-code))
