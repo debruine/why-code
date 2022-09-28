@@ -499,14 +499,6 @@ Some of the awesome R people you can follow on Twitter.
 </video> 
 </td></tr></table>
 
-## Shiny Apps
-
-```{r}
-knitr::include_app("https://shiny.psy.gla.ac.uk/debruine/seen/", height = "550px")
-```
-
-[Seen and to See](https://shiny.psy.gla.ac.uk/debruine/seen/)
-
 
 # Data Simulation
 
