@@ -59,20 +59,24 @@ readxl::read_excel("data/PopulationAgeSex-20220430074449.xlsx",
   gt::cols_width(Location ~pct(20), 
                  Sex ~ pct(15),
                  Age ~ pct(10)) |>
-  gtExtras:: gt_theme_dark()
+  gtExtras::gt_theme_dark(table.font.size = px(20)) |>
+  tab_style(style = cell_text(size = px(20)),
+            locations = cells_column_labels(everything()))
 ```
 
 
 ## UN Population Data: 2020
 
-:::: {.columns}
+:::: {.columns style="font-size: 40%;"}
 ::: {.column width="33%"}
 
 ```{r}
 head(pop_data_2020, 14) |>
   gt() |>
   fmt_percent(pcnt) |>
-  gtExtras:: gt_theme_dark()
+  gtExtras::gt_theme_dark(table.font.size = px(20)) |>
+  tab_style(style = cell_text(size = px(20)),
+            locations = cells_column_labels(everything()))
 ```
 :::
 ::: {.column width="33%"}
@@ -80,7 +84,9 @@ head(pop_data_2020, 14) |>
 slice(pop_data_2020, 15:28) |>
   gt() |>
   fmt_percent(pcnt) |>
-  gtExtras:: gt_theme_dark()
+  gtExtras::gt_theme_dark(table.font.size = px(20)) |>
+  tab_style(style = cell_text(size = px(20)),
+            locations = cells_column_labels(everything()))
 ```
 :::
 ::: {.column width="33%"}
@@ -88,7 +94,9 @@ slice(pop_data_2020, 15:28) |>
 slice(pop_data_2020, 29:42) |>
   gt() |>
   fmt_percent(pcnt) |>
-  gtExtras:: gt_theme_dark()
+  gtExtras::gt_theme_dark(table.font.size = px(20)) |>
+  tab_style(style = cell_text(size = px(20)),
+            locations = cells_column_labels(everything()))
 ```
 :::
 ::::
@@ -359,15 +367,6 @@ gganimate::anim_save("images/anim.gif",
 
 ![](images/anim2.gif)
 
-## Computational Reproducibility
-
-* Of 35 articles published in *Cognition* with usable data (but no code, [Hardwicke et al. (2018)](https://doi.org/10.1098/rsos.180448) found:
-    - only 11 could be reproduced independently 
-    - 11 were reproducible with the original authors' help
-    - 13 were not reproducible even by the original authors
-
-* Of 62 psych Registered Reports published from 2014--2018, 37 had analysis scripts, 31 could be run, and 21 reproduced all the main results ([Obels et al, 2020](https://doi.org/10.1177/251524592091887))
-
 ## Error Detection
 
 <div style="float:right;width:35%;margin-left: 1em;">
@@ -379,6 +378,15 @@ An analysis by [Nuijten et al. (2016)](https://doi.org/10.3758/s13428-015-0664-2
 * half the papers had at least one inconsistent p-value 
 * 1/8 of papers had errors that could affect conclusions
 * errors more likely to be erroneously significant than not
+
+## Computational Reproducibility
+
+* Of 35 articles published in *Cognition* with usable data (but no code, [Hardwicke et al. (2018)](https://doi.org/10.1098/rsos.180448) found:
+    - only 11 could be reproduced independently 
+    - 11 were reproducible with the original authors' help
+    - 13 were not reproducible even by the original authors
+
+* Of 62 psych Registered Reports published from 2014--2018, 37 had analysis scripts, 31 could be run, and 21 reproduced all the main results ([Obels et al, 2020](https://doi.org/10.1177/251524592091887))
 
 
 # Developing Skills
@@ -393,9 +401,9 @@ An analysis by [Nuijten et al. (2016)](https://doi.org/10.3758/s13428-015-0664-2
 - Practice regularly and meaningfully
 - Embed R in your daily practice
 - Do something fun!
-    - [30-Day Chart Challenge](https://30daychartchallenge.org/)
+    - [30-Day Chart Challenge](https://twitter.com/30DayChartChall)
     - [Tidy Tuesday](https://www.tidytuesday.com/)
-    - [Table Contest](https://www.rstudio.com/blog/rstudio-table-contest-2022/) (due 2022-11-18)
+    - [Table Contest](https://www.rstudio.com/blog/rstudio-table-contest-2022/)
 
 :::
 
@@ -429,19 +437,21 @@ Benjamin Nowak's outstanding gt tutorial
 
 ## Online Communities
 
-:::{layout-ncol=4}
-
-[![#RStats twitter](images/twitter-logo.svg)](https://twitter.com/hashtag/Rstats)
+:::{layout-ncol=5}
 
 [![R-Ladies](images/R-LadiesGlobal.png)](https://rladies.org/)
 
 [![R for Data Science](images/r4ds.png)](https://www.rfordatasci.com/)
 
-[![Starts October 5](images/coding-club.png)](https://psyteachr.github.io/mms/coding_club.html)
+[![Coding Club](images/coding-club.png)](https://psyteachr.github.io/mms/coding_club.html)
+
+[![#RStats mastodon](images/mastodon-logo.png)](https://mastodon.social/tags/rstats)
+
+[![#RStats twitter](images/twitter-logo.svg)](https://twitter.com/hashtag/Rstats)
 
 :::
 
-
+<!--
 ## #RStats Twitter
 
 Some of the awesome R people you can follow on Twitter.
@@ -467,6 +477,7 @@ Some of the awesome R people you can follow on Twitter.
 
 [![@rafamoral](images/rafamoral.jpg)](https://twitter.com/rafamoral)
 :::
+-->
 
 ## Art and Memes
 
@@ -480,7 +491,7 @@ Some of the awesome R people you can follow on Twitter.
 
 :::
 
-## #RStats TikTok
+## RStats Musical Memes @rafa_moral
 
 <table><tr><td>
 ### It's R! 🌽
@@ -557,9 +568,9 @@ sim_data <- faux::sim_design(
 # sim_data[c(1, 31, 61, 91, 121, 151, 181, 211), ] |>
 get_design(sim_data)$params |>
   gt() |>
-  gt::tab_options(table.font.size = 25,
-                  column_labels.font.size = 25) |>
-  gtExtras:: gt_theme_dark()
+  gtExtras::gt_theme_dark(table.font.size = px(20)) |>
+  tab_style(style = cell_text(size = px(25)),
+            locations = cells_column_labels(everything()))
 ```
 
 
@@ -618,15 +629,25 @@ analysis <- function(data) {
 }
 ```
 
+## Power Simulation: Analysis Result
 
+```{r, echo = TRUE, eval = FALSE}
+# test on first data set
+analysis(sim_data$data[[1]])
+```
+
+::: {style="font-size: 70%;"}
 ```{r}
 analysis(sim_data$data[[1]]) |>
   gt() |>
   gt::fmt_number(MSE, decimals = 1) |>
   gt::fmt_number(F, decimals = 2) |>
   gt::fmt_number(ges:p, decimals = 3) |>
-  gtExtras:: gt_theme_dark()
+  gtExtras::gt_theme_dark(table.font.size = px(15)) |>
+  tab_style(style = cell_text(size = px(15)),
+            locations = cells_column_labels(everything()))
 ```
+:::
 
 ## Power Simulation
 
@@ -639,15 +660,15 @@ power <- sim_data |>
   summarise(power = mean(p < .05))
 ```
 
-
+::: {style="font-size: 80%;"}
 ```{r}
 power |>
   gt() |>
-  gt::tab_options(table.font.size = 25,
-                column_labels.font.size = 25) |>
-  gtExtras:: gt_theme_dark()
+  gtExtras::gt_theme_dark(table.font.size = px(15)) |>
+  tab_style(style = cell_text(size = px(20)),
+            locations = cells_column_labels(everything()))
 ```
-
+:::
 
 
 ## Further Resources
@@ -661,6 +682,21 @@ power |>
 :::
 
 # Code Review
+
+## Code & Data Sharing
+
+* 3+ researchers of varying experience levels attempted to reproduce the results of the empirical articles in the April 2019 issue of *Psychological Science* ([Crüwell et al, 2023](https://doi.org/10.31234/osf.io/729qt))
+* All 14 articles provided at least some data and 6 provided analysis code
+* Only 1 article (with code) was exactly reproducible
+* 3 (1 with code) were essentially reproducible with minor deviations
+* Several articles had data access problems
+
+## Ease of Code Use
+
+* All articles in volume 33 (2022) of *Psychological Science* 
+* A 4th year undergrad (Runcie, in prep) from Glasgow Psychology tried to run all open code within 10 minutes
+
+![](images/data-badge.png)
 
 ## Goals of Code Review
 
@@ -710,6 +746,10 @@ Is the code actually doing what was intended, and is what was intended correct? 
 
 ## Key Concepts
 
+:::: {.columns}
+
+::: {.column width="55%"}
+
 - Project organisation
 - File paths
 - Naming things
@@ -717,6 +757,15 @@ Is the code actually doing what was intended, and is what was intended correct? 
 - Literate coding
 - Single point of truth (SPOT)
 - Don't repeat yourself (DRY)
+
+:::
+
+::: {.column width="45%"}
+
+[![youtu.be/-e5EQIw9rAg](images/2022-riots-code-review.jpg)](https://www.youtube.com/watch?v=-e5EQIw9rAg)
+
+:::
+::::
 
 ## Coder Checklist
 
