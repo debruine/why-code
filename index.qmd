@@ -433,7 +433,7 @@ Benjamin Nowak's outstanding gt tutorial
 ![Learning Statistical Models Through Simulation in R](images/stat-models.png)
 :::
 
-[![](images/psyTeachR_logo.png)](https://psyteachr.github.io)
+[![](images/psyteachr_logo.png)](https://psyteachr.github.io)
 
 ## Online Communities
 
